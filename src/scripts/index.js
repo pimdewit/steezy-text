@@ -1,19 +1,22 @@
+import '../styles/main.scss';
+
 /**
  * @param {HTMLElement} container
  * @param {Array[String]} textToLoop
+ * @param {Object} options
+ * @param {Number} options.loopDuration The loop interval time in milliseconds.
+ * @param {Boolean} options.autoplay
  */
 class SteezyText {
-  constructor(container, textToLoopThrough, options = {
-    loopDuration: 2000,
-    autoplay: true
-  }) {
+  constructor(container, textToLoopThrough, options = {loopDuration: 1000, autoplay: true}) {
 
-    this.CONSTANTS = {
+    this._CONST = {
       MANDATORY_CLASSNAME: 'steez',
-      LOOP_INDEX_CLASSNAME: 'steez__loop__',
-      LETTER_INDEX_CLASSNAME: 'steez__letter',
+      LOOP_INDEX_CLASSNAME: 'steez__loop',
+      LETTER_CLASSNAME: 'steez__letter',
+      MODIFIER_ACTIVE_CLASSNAME: 'steez--active',
+      MODIFIER_WHITESPACE_CLASSNAME: 'has-whitespace',
       ELEMENT_TYPE: 'span',
-      ACTIVE_CLASSNAME: 'active',
       ELEMENT_COUNT: textToLoopThrough.length - 1
     };
 
@@ -69,11 +72,11 @@ class SteezyText {
   }
 
   _removeActives() {
-    this.elements.forEach(element => element.container.classList.remove(this.CONSTANTS.ACTIVE_CLASSNAME));
+    this.elements.forEach(element => element.container.classList.remove(this._CONST.MODIFIER_ACTIVE_CLASSNAME));
   }
 
   _setToActive(index) {
-    this.elements[index].container.classList.add(this.CONSTANTS.ACTIVE_CLASSNAME);
+    this.elements[index].container.classList.add(this._CONST.MODIFIER_ACTIVE_CLASSNAME);
   }
 
   /**
@@ -82,34 +85,45 @@ class SteezyText {
    * @private
    */
   _prepareDOM(parent, textNodes) {
+    
+    const letterBaseClassname = this._CONST.LETTER_CLASSNAME;
+    const letterWhitespaceClassname = `${letterBaseClassname}--${this._CONST.MODIFIER_WHITESPACE_CLASSNAME}`;
 
     textNodes.forEach((text, i) => {
 
-      const element = document.createElement(this.CONSTANTS.ELEMENT_TYPE);
-      element.className = `${this.CONSTANTS.MANDATORY_CLASSNAME} ${this.CONSTANTS.LOOP_INDEX_CLASSNAME}--${i}`;
-      element.title = text;
+      const textContainerElement = document.createElement(this._CONST.ELEMENT_TYPE);
+      textContainerElement.className = `${this._CONST.MANDATORY_CLASSNAME} ${this._CONST.LOOP_INDEX_CLASSNAME}--${i}`;
+      textContainerElement.title = text;
 
       const letterElements = [];
       const letterStrings = text.split('');
-      letterStrings.forEach((letter, j) => {
 
-        const span = document.createElement(this.CONSTANTS.ELEMENT_TYPE);
-        span.className = `${this.CONSTANTS.LETTER_INDEX_CLASSNAME} ${this.CONSTANTS.LETTER_INDEX_CLASSNAME}--${j}`;
+      letterStrings.forEach((character, j) => {
+        const letterElement = document.createElement(this._CONST.ELEMENT_TYPE);
+        
+        const letterIndexClassname = `${letterBaseClassname}--${j}`;
+        let elementClassnames = `${letterBaseClassname} ${letterIndexClassname}`;
 
-        const textNode = document.createTextNode(letter);
+        // If the character is a whitespace.
+        if (character === ' ') elementClassnames = `${elementClassnames} ${letterWhitespaceClassname}`;
+        
+        letterElement.className = elementClassnames;
 
-        span.appendChild(textNode);
-        element.appendChild(span);
+        const textNode = document.createTextNode(character);
+        letterElement.appendChild(textNode);
+        
+        textContainerElement.appendChild(letterElement);
 
-        letterElements[j] = span;
+        letterElements[j] = letterElement;
       });
 
+      // Store the elements for later.
       this.elements[i] = {
-        container: element,
+        container: textContainerElement,
         letters: letterElements
       };
 
-      parent.appendChild(element);
+      parent.appendChild(textContainerElement);
     });
   }
 
@@ -118,10 +132,9 @@ class SteezyText {
    * @private
    */
   _autoplayLoop() {
-
     if (this.autoplay) setTimeout(() => this._autoplayLoop(), this.loopDuration);
 
-    this.activeIndex = this.activeIndex >= this.CONSTANTS.ELEMENT_COUNT ? 0 : this.activeIndex + 1;
+    this.activeIndex = this.activeIndex >= this._CONST.ELEMENT_COUNT ? 0 : this.activeIndex + 1;
 
   }
 }
@@ -131,11 +144,11 @@ window.onload = () => {
   const containerElement = document.querySelector('#app');
 
   const textStrings = [
-    'Hello World',
-    'Howdy',
-    '1234567',
-    'asdfghjk',
-    'zxcvbnm'
+    'Hello World!',
+    'Arizona',
+    'three',
+    'Lorem ipsum',
+    'eiwfj ejwfo eeoij jwefiewofjewi jefj '
   ];
 
   new SteezyText(containerElement, textStrings);

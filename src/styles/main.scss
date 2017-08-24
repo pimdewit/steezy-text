@@ -1,0 +1,72 @@
+html {
+  font-family: 'Titillium Web', sans-serif;
+
+  color: rgba(0, 0, 0, 0.8);
+
+  background-color: #1a1a1a;
+}
+
+body {
+  margin: 0;
+}
+
+#app {
+  display: flex;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  height: 100%;
+}
+
+.steez {
+  display: inline-block;
+  visibility: hidden;
+
+  position: absolute;
+
+  font-size: 4em;
+  text-transform: uppercase;
+
+  opacity: 0;
+
+  transform: translate3d(0, -20%, 0);
+
+  transition-property: transform, visibility, opacity;
+  transition-duration: 2000ms;
+
+  will-change: transform, visibility, opacity;
+}
+
+.steez--active {
+  visibility: visible;
+
+  opacity: 1;
+
+  transform: translate3d(0, 0, 0);
+}
+
+.steez__letter {
+  display: inline-block;
+
+  transform: translate3d(0, -60%, 0);
+
+  transition-property: transform, opacity;
+  transition-duration: inherit;
+
+  will-change: transform;
+
+  &--has-whitespace {
+    width: 10px;
+
+    transition: none;
+  }
+}
+
+.steez--active .steez__letter { transform: translate3d(0, 0, 0); }
+
